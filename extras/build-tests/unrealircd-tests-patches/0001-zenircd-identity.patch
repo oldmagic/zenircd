@@ -1,0 +1,39 @@
+ZenIRCd: update test expectations for intentional identity changes.
+
+Applies to unrealircd-tests commit 8043c407497b3ea465cef9ed2e759f14d5079ad6
+(branch unreal60). Changes ONLY expectations that ZenIRCd changes on purpose;
+no test is skipped, removed or weakened:
+- run: the daemon binary is bin/zenircd and its pid file is data/zenircd.pid
+  (bin/unrealircd still exists as a compatibility symlink)
+- tests/usercommands/version: the VERSION (351) reply starts with "ZenIRCd-"
+  instead of "UnrealIRCd-"
+
+diff --git a/run b/run
+index 34d05ce..4ea0ff5 100755
+--- a/run
++++ b/run
+@@ -160,9 +160,9 @@ if [ "$1" = "-boot" -o "$1" = "" ]; then
+ 	fi
+ 	for name in irc2 irc1 irc3
+ 	do
+-		bin/unrealircd -f $name.conf || fail "UnrealIRCd failed to start ($name)"
++		bin/zenircd -f $name.conf || fail "ZenIRCd failed to start ($name)"
+ 		sleep 1
+-		kill -1 `cat data/unrealircd.pid`
++		kill -1 `cat data/zenircd.pid`
+ 	done
+ 	cd -
+ 	start_services
+diff --git a/tests/usercommands/version b/tests/usercommands/version
+index 23bc4a9..5abb3ee 100755
+--- a/tests/usercommands/version
++++ b/tests/usercommands/version
+@@ -6,7 +6,7 @@ c1a = m.new('c1a')
+ m.connect()
+ 
+ m.send(c1a, "VERSION")
+-m.expect(c1a, "VERSION response (351)", ":.+ 351 $me UnrealIRCd-.* irc1\.test\.net :0 ")
++m.expect(c1a, "VERSION response (351)", ":.+ 351 $me ZenIRCd-.* irc1\.test\.net :0 ")
+ m.expect(c1a, "VERSION response (005, part 1)", ":.+ 005 $me .*CASEMAPPING")
+ m.expect(c1a, "VERSION response (005, part 2)", ":.+ 005 $me .*MAXLIST")
+ m.expect(c1a, "VERSION response (005, part 3)", ":.+ 005 $me .*WHOX")

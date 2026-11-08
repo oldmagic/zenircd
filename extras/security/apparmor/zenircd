@@ -1,0 +1,29 @@
+# AppArmor profile for ZenIRCd (based on the UnrealIRCd 6 profile)
+#
+# Note that you may still see some DENIED warnings in logs with
+# operation="chmod". These are harmless and can be safely ignored.
+#
+# Tested on Ubuntu 16.04 LTS, Ubuntu 18.04 LTS, Ubuntu 20.04 LTS
+#
+# IMPORTANT: you will have to modify the path to executable below
+#            if it's not /home/ircd/zenircd-server/bin/zenircd !
+#            Note: bin/unrealircd is only a symlink to bin/zenircd;
+#            AppArmor matches the real path, so the profile must name bin/zenircd.
+
+#include <tunables/global>
+
+# Change the pathname of your ZenIRCd executable here:
+/home/ircd/zenircd-server/bin/zenircd {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+
+  @{HOME}/zenircd-server/conf/ r,
+  @{HOME}/zenircd-server/conf/** r,
+  @{HOME}/zenircd-server/data/** rw,
+  @{HOME}/zenircd-server/lib/*.so* mr,
+  @{HOME}/zenircd-server/logs/* rw,
+  @{HOME}/zenircd-server/modules/**.so r,
+  @{HOME}/zenircd-server/tmp/ r,
+  @{HOME}/zenircd-server/tmp/* mrw,
+  @{HOME}/zenircd-server/bin/zenircd mr,
+}

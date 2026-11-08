@@ -1,0 +1,60 @@
+#!/bin/bash
+#
+# This script fires up a two-server IRC network and runs the test framework
+#
+
+# Exit on error:
+set -e
+
+# Verbose:
+set -x
+
+# Kill old instances
+killall -9 zenircd unrealircd || true
+
+# ZenIRCd installs into ~/zenircd-server (the test framework defaults to ~/unrealircd)
+export TESTS_UNREALIRCD_DIR="${TESTS_UNREALIRCD_DIR:-$HOME/zenircd-server}"
+
+# ZenIRCd: the upstream test suite is pinned to a known commit (override with
+# TESTS_REF), and patches in extras/build-tests/unrealircd-tests-patches/ are
+# applied on top. Those patches may ONLY update expectations for behaviour that
+# ZenIRCd changes on purpose (e.g. its name), or ADD new regression tests.
+# They must never skip, disable or weaken a test.
+TESTS_REF="${TESTS_REF:-8043c407497b3ea465cef9ed2e759f14d5079ad6}"
+PATCHDIR="$(pwd)/extras/build-tests/unrealircd-tests-patches"
+
+# Install 'unrealircd-tests'
+rm -rf unrealircd-tests/
+git clone -q --branch unreal60 https://github.com/unrealircd/unrealircd-tests.git unrealircd-tests
+cd unrealircd-tests
+git -c advice.detachedHead=false checkout -q "$TESTS_REF"
+for p in "$PATCHDIR"/*.patch; do
+	[ -f "$p" ] || continue
+	git apply --verbose "$p"
+done
+git log -1 --format='unrealircd-tests at %H'
+
+# FreeBSD has various issues with the tests from us and others,
+# better set a flag to keep it simple:
+if uname -a|grep -q FreeBSD; then
+	NOSERVICES=1
+fi
+
+# Run the test framework, testing both services:
+if [ "$NOSERVICES" = 1 ]; then
+	./run -services none $RUNTESTFLAGS || exit 1
+else
+	# Linux tests both with anope and atheme services:
+	./run -services anope $RUNTESTFLAGS || exit 1
+	./run -services atheme $RUNTESTFLAGS || exit 1
+fi
+
+# Database writing/reading tests
+## unencrypted:
+./run -services none -boot tests/db/writing/* || exit 1
+./run -services none -keepdbs -boot tests/db/reading/* || exit 1
+## encrypted:
+./run -services none -include db_crypted.conf -boot tests/db/writing/* || exit 1
+./run -services none -include db_crypted.conf -keepdbs -boot tests/db/reading/* || exit 1
+
+echo "If you also want to run the SSL/TLS tests, see extras/tests/tls/tls-tests"

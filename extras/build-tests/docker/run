@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# Build ZenIRCd and run the full test suite in a throwaway Docker container.
+#
+# Usage:  extras/build-tests/docker/run [--no-cache]
+#
+# The current *working tree* is tested: all git-tracked files, including
+# uncommitted modifications. Untracked files are NOT included, so `git add`
+# new files first.
+#
+# Exit code: 0 if every test pass succeeded, non-zero otherwise.
+# Requires: docker, git. Internet access is needed to fetch Anope, Atheme,
+# the test suite and the third/dumpcmds module.
+#
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+BUILD_ARGS=()
+if [ "${1:-}" = "--no-cache" ]; then
+	BUILD_ARGS+=(--no-cache)
+fi
+
+REV="$(git rev-parse --short HEAD)"
+if ! git diff --quiet HEAD --; then
+	REV="${REV}-dirty"
+fi
+IMAGE="zenircd-test:${REV}"
+
+echo "==> Building test image ${IMAGE} (this takes a while the first time)"
+# Send only tracked files as build context (never build artefacts, .git, or
+# local configs). --ignore-failed-read skips tracked files deleted in the tree.
+git ls-files -z \
+	| tar --null --ignore-failed-read -T - -cf - \
+	| docker build "${BUILD_ARGS[@]}" -f extras/build-tests/docker/Dockerfile -t "$IMAGE" -
+
+echo "==> Running test suite in ${IMAGE}"
+# SYS_PTRACE: LeakSanitizer needs it to inspect threads.
+# The container is removed afterwards; nothing is written to the host.
+set +e
+timeout 3600 docker run --rm --init \
+	--cap-add=SYS_PTRACE --memory=8g --pids-limit=4096 \
+	"$IMAGE"
+rc=$?
+set -e
+
+if [ "$rc" -eq 0 ]; then
+	echo "==> ALL TEST PASSES SUCCEEDED (${IMAGE})"
+else
+	echo "==> TEST SUITE FAILED with exit code ${rc} (${IMAGE})"
+fi
+exit "$rc"

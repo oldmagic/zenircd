@@ -1,0 +1,30 @@
+# These are the settings saved from running './Config'.
+# Note that it is not recommended to edit config.settings by hand!
+# Chances are you misunderstand what a variable does or what the
+# supported values are. You better just re-run the ./Config script
+# and answer appropriately there, to get a correct config.settings
+# file.
+#
+BASEPATH=$HOME/zenircd-server
+BINDIR=$HOME/zenircd-server/bin
+DATADIR=$HOME/zenircd-server/data
+CONFDIR=$HOME/zenircd-server/conf
+MODULESDIR=$HOME/zenircd-server/modules
+LOGDIR=$HOME/zenircd-server/logs
+CACHEDIR=$HOME/zenircd-server/cache
+DOCDIR=$HOME/zenircd-server/doc
+TMPDIR=$HOME/zenircd-server/tmp
+PRIVATELIBDIR=$HOME/zenircd-server/lib
+MAXCONNECTIONS_REQUEST="auto"
+NICKNAMEHISTORYLENGTH="2000"
+GEOIP="mmdb"
+DEFPERM="0600"
+SSLDIR=""
+REMOTEINC=""
+CURLDIR=""
+NOOPEROVERRIDE=""
+OPEROVERRIDEVERIFY=""
+GENCERTIFICATE="0"
+SANITIZER="asan"
+EXTRAPARA="--enable-werror"
+ADVANCED=""

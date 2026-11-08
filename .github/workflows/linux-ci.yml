@@ -1,0 +1,108 @@
+name: Linux CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+# Least privilege: CI only needs to read the repository.
+permissions:
+  contents: read
+
+# Don't pile up runs for the same branch/PR; the newest push wins.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Fast check: CI build (ASAN+UBSAN, -Werror) with gcc and clang, then the
+  # test suite without services. Runs directly on the throwaway runner VM.
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - { c: gcc,   cpp: g++ }
+          - { c: clang, cpp: clang++ }
+
+    env:
+      CC:  ${{ matrix.compiler.c }}
+      CXX: ${{ matrix.compiler.cpp }}
+      NOSERVICES: 1
+      RUNTESTFLAGS: "-slightlyfast"
+
+    steps:
+      - name: Checkout
+        # Pinned to actions/checkout v4.2.2 by commit for supply-chain safety.
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Install dependencies
+        run: |
+          sudo rm -f /var/lib/man-db/auto-update
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config libssl-dev libpcre2-dev libargon2-dev \
+            libsodium-dev libc-ares-dev libcurl4-openssl-dev libjansson-dev
+
+      - name: Install python dependencies
+        run: |
+          python -m pip install --break-system-packages pyasyncore pyasynchat
+
+      - name: Build
+        run: extras/build-tests/nix/build
+
+      - name: Run tests (no services)
+        run: extras/build-tests/nix/run-tests
+
+  # Full check: the same harness developers run locally. ZenIRCd + Anope +
+  # Atheme in a container, all test passes (services, DB, encrypted DB).
+  full-suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Run full test suite in Docker (Anope, Atheme, DB)
+        run: extras/build-tests/docker/run
+
+  format-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      # We pin clang-format to major version 21 because different versions
+      # format slightly differently (which would cause false failures).
+      # This must match the version developers use, see also the comment
+      # at the top of the .clang-format file.
+      - name: Install clang-format 21
+        run: |
+          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt-llvm-org.asc >/dev/null
+          echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main" | sudo tee /etc/apt/sources.list.d/llvm21.list
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang-format-21
+
+      # Same check as 'make format-check' in Makefile.in (we cannot use
+      # that directly here because 'make' requires ./configure to have run).
+      - name: Check code formatting
+        run: |
+          clang-format-21 --version
+          clang-format-21 --dry-run --Werror `git ls-files src include | grep -E '\.(c|h)$' | grep -vE 'crypt_blowfish|openssl_hostname_validation'`
