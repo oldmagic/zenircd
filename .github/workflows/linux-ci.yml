@@ -16,11 +16,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Runners are pinned to ubuntu-24.04 (not ubuntu-latest): the format-check
+# job installs clang-format from the LLVM "noble" (24.04) apt repository.
 jobs:
   # Fast check: CI build (ASAN+UBSAN, -Werror) with gcc and clang, then the
   # test suite without services. Runs directly on the throwaway runner VM.
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     strategy:
@@ -38,8 +40,8 @@ jobs:
 
     steps:
       - name: Checkout
-        # Pinned to actions/checkout v4.2.2 by commit for supply-chain safety.
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        # Pinned to actions/checkout v7.0.1 by commit for supply-chain safety.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
           fetch-depth: 1
@@ -65,12 +67,12 @@ jobs:
   # Full check: the same harness developers run locally. ZenIRCd + Anope +
   # Atheme in a container, all test passes (services, DB, encrypted DB).
   full-suite:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
 
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
           fetch-depth: 1
@@ -79,12 +81,12 @@ jobs:
         run: extras/build-tests/docker/run
 
   format-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
           fetch-depth: 1

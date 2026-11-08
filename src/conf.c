@@ -6731,7 +6731,7 @@ int _conf_link(ConfigFile *conf, ConfigEntry *ce)
 		/* This is for 6.2.8: only warn, don't set the flag yet */
 		unreal_log(ULOG_WARNING, "config", "CONFIG_LINK_WITHOUT_CERTIFICATE_VERIFICATION", NULL,
 		           "$file:$line_number: Link block '$link_block' does not verify the certificate of the other side.\n"
-		           "In a future UnrealIRCd release (Q1 2027), outgoing connects to $link_block will be refused because it allows a man-in-the-middle attack.\n"
+		           "In a future ZenIRCd release, outgoing connects to $link_block will be refused because it allows a man-in-the-middle attack.\n"
 		           "Please follow this guide to link securely: https://www.unrealircd.org/docs/Linking_servers_(genlinkblock)",
 		           log_data_string("file", ce->file->filename),
 		           log_data_integer("line_number", ce->line_number),
