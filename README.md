@@ -10,7 +10,7 @@ server goes to the UnrealIRCd team and contributors (see [Attribution](#attribut
 | | |
 |---|---|
 | Current version | **ZenIRCd 0.1.0** (pre-release) |
-| Based on | UnrealIRCd **6.2.7.1** (includes the fix for CVE-2026-114713) plus selected upstream fixes |
+| Based on | UnrealIRCd **6.2.8-git** (upstream development branch `unreal60_dev`; includes all 6.2.7.1 security fixes, including CVE-2026-114713) |
 | License | GNU GPL version 2 (see [LICENSE](LICENSE) and [License](#license)) |
 | Status | Early development, see [docs/TODO.md](docs/TODO.md) |
 
@@ -23,13 +23,13 @@ following are deliberately **unchanged**:
 - the server-to-server protocol, including the `UnrealIRCd-` software prefix in `PROTOCTL EAUTH`
 - the module ABI (`unrealircd-6`), so third-party UnrealIRCd 6 modules still compile and load
 - database file formats, configuration syntax, and `unrealircd.org/*` message tags and capabilities
-- the UnrealIRCd version number used for config `@if` checks and module compatibility (`6.2.7.1`)
+- the UnrealIRCd version number used for config `@if` checks and module compatibility (`6.2.8-git`, the upstream code this tree contains)
 
 What ZenIRCd changes:
 
 | | UnrealIRCd | ZenIRCd |
 |---|---|---|
-| Version reply / banner | `UnrealIRCd-6.2.7.1` | `ZenIRCd-0.1.0` (based on UnrealIRCd 6.2.7.1) |
+| Version reply / banner | `UnrealIRCd-6.2.8-git` | `ZenIRCd-0.1.0` (based on UnrealIRCd 6.2.8-git) |
 | Default install directory | `~/unrealircd` | `~/zenircd-server` |
 | Control script / binaries | `unrealircd`, `bin/unrealircd`, `bin/unrealircdctl` | `zenircd`, `bin/zenircd`, `bin/zenircdctl` (old names kept as symlinks) |
 | Main config file | `conf/unrealircd.conf` | `conf/zenircd.conf` (falls back to `conf/unrealircd.conf`) |

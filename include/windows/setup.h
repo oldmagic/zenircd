@@ -72,11 +72,11 @@
 #define UNREAL_VERSION_MAJOR 2
 
 /* Minor version number (e.g.: 1 for Unreal3.2.1) */
-#define UNREAL_VERSION_MINOR 7
+#define UNREAL_VERSION_MINOR 8
 
 /* Version suffix such as a beta marker or release candidate marker. (e.g.:
    -rcX for unrealircd-3.2.9-rcX) */
-#define UNREAL_VERSION_SUFFIX ".1"
+#define UNREAL_VERSION_SUFFIX "-git"
 
 /* ZenIRCd version number. Keep in sync with AC_INIT in configure.ac.
  * NOTE: the ZenIRCd Windows build is untested.

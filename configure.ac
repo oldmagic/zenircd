@@ -23,8 +23,9 @@ dnl Save build directory early on (used in our m4 macros too)
 BUILDDIR_NOW="`pwd`"
 
 dnl ZenIRCd version (from AC_INIT above). The UNREAL_VERSION_* values below are
-dnl the UnrealIRCd release this tree is based on. They stay unchanged because
-dnl config files (@if version checks) and third-party modules depend on them.
+dnl the UnrealIRCd version this tree is based on. Update them on every upstream
+dnl sync: config files (@if version checks), modules.default.conf, the module
+dnl manager and third-party modules depend on them matching the actual code.
 AC_DEFINE_UNQUOTED([ZENIRCD_VERSION], ["AC_PACKAGE_VERSION"], [ZenIRCd version number])
 
 dnl Calculate the versions. Perhaps the use of expr is a little too extravagant
@@ -37,13 +38,13 @@ UNREAL_VERSION_MAJOR=["2"]
 AC_DEFINE_UNQUOTED([UNREAL_VERSION_MAJOR], [$UNREAL_VERSION_MAJOR], [Major version number (e.g.: Y for X.Y.Z)])
 
 # Minor version number (e.g.: Z in X.Y.Z)
-UNREAL_VERSION_MINOR=["7"]
+UNREAL_VERSION_MINOR=["8"]
 AC_DEFINE_UNQUOTED([UNREAL_VERSION_MINOR], [$UNREAL_VERSION_MINOR], [Minor version number (e.g.: Z for X.Y.Z)])
 
 # The version suffix such as a beta marker or release candidate
 # marker. (e.g.: -rcX for unrealircd-3.2.9-rcX). This macro is a
 # string instead of an integer because it contains arbitrary data.
-UNREAL_VERSION_SUFFIX=[".1"]
+UNREAL_VERSION_SUFFIX=["-git"]
 AC_DEFINE_UNQUOTED([UNREAL_VERSION_SUFFIX], ["$UNREAL_VERSION_SUFFIX"], [Version suffix such as a beta marker or release candidate marker. (e.g.: -rcX for unrealircd-3.2.9-rcX)])
 
 AC_PATH_PROG(RM,rm)

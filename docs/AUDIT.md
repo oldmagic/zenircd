@@ -252,7 +252,7 @@ compatibility for the old names.
 
 | Area | Change | Files |
 |---|---|---|
-| Version | `BASE_VERSION` "ZenIRCd"; `ZENIRCD_VERSION` from `AC_INIT` (0.1.0); `IRCDTOTALVERSION` = `ZenIRCd-0.1.0` now defined once; `UPSTREAMVERSION` = `UnrealIRCd-6.2.7.1` | `include/common.h`, `include/version.h`, `configure.ac`, `include/windows/setup.h` |
+| Version | `BASE_VERSION` "ZenIRCd"; `ZENIRCD_VERSION` from `AC_INIT` (0.1.0); `IRCDTOTALVERSION` = `ZenIRCd-0.1.0` now defined once; `UPSTREAMVERSION` = `UnrealIRCd-6.2.7.1` at the time; `UnrealIRCd-6.2.8-git` since the 2026-11-08 sync to upstream `89acd7d5e` | `include/common.h`, `include/version.h`, `configure.ac`, `include/windows/setup.h` |
 | VERSION / 002 / 004 / SINFO software | `ZenIRCd-0.1.0` | (derived from `version`) |
 | Banner, /INFO, /CREDITS header | ZenIRCd, with "based on UnrealIRCd 6.2.7.1" and credit to the UnrealIRCd developers | `src/ircd.c`, `src/serv.c`, `src/version.c.SH` |
 | Startup logo | new ZenIRCd logo (see H.3) | `src/version.c.SH`, `src/hash.c` |
